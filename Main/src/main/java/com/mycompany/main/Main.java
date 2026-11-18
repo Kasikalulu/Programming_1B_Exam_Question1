@@ -1,32 +1,28 @@
-package com.mycompany.Main;
-
+package com.mycompany.main;
 import java.util.Scanner;
 
 public class Main {
 
-
+    // 1. THE INTERFACE
     public interface IProduct {
         int GetTotalProductsSold();
         double GetAverageProductSold();
         String GetMostPopularProduct();
     }
 
-    
+    // 2. THE PRODUCT CLASS
     public static class Product implements IProduct {
         private String[] productNames = {"Cozy Nights Monarch", "Restonic Barbados", "Sealy Phuket"};
         private int[][] sales = new int[3][3];
         private Scanner scanner = new Scanner(System.in);
 
-        // Default constructor for the running application
-        public Product() {
-        }
+        public Product() {}
 
-        // Overloaded constructor used specifically for Unit Testing
+        // Used for Unit Testing
         public Product(int[][] testSales) {
             this.sales = testSales;
         }
 
-        // Method to get data from the user
         public void obtainSales() {
             for (int i = 0; i < productNames.length; i++) {
                 for (int j = 0; j < 3; j++) {
@@ -50,16 +46,12 @@ public class Main {
 
         @Override
         public double GetAverageProductSold() {
-            int total = GetTotalProductsSold();
-            int totalEntries = sales.length * sales[0].length; // 3 products * 3 months = 9
-            return (double) total / totalEntries;
+            return (double) GetTotalProductsSold() / (sales.length * sales[0].length);
         }
 
         @Override
         public String GetMostPopularProduct() {
-            int maxSales = -1;
-            int maxIndex = -1;
-
+            int maxSales = -1, maxIndex = -1;
             for (int i = 0; i < sales.length; i++) {
                 int productTotal = 0;
                 for (int j = 0; j < sales[i].length; j++) {
@@ -74,47 +66,60 @@ public class Main {
         }
     }
 
-
+    // 3. THE PRINTPRODUCT CLASS
     public static class PrintProduct {
-        
-        public void printTotalProductSales(IProduct product) {
-            System.out.println("TOTAL PRODUCT SALES: " + product.GetTotalProductsSold());
-        }
-
-        public void printAverageProductSales(IProduct product) {
-            // Using %.0f to format the average exactly like the sample output (e.g., 17 instead of 17.0)
-            System.out.printf("AVERAGE PRODUCT SALES: %.0f\n", product.GetAverageProductSold());
-        }
-
-        public void printMostPopularProduct(IProduct product) {
-            System.out.println("MOST POPULAR PRODUCT: " + product.GetMostPopularProduct());
-        }
-
-        // Helper method to print the full report header and call the individual print methods
         public void printFullReport(IProduct product) {
             System.out.println("PRODUCT SALES REPORT - 2026\n");
             System.out.println("*********************************");
-            printTotalProductSales(product);
-            printAverageProductSales(product);
-            printMostPopularProduct(product);
+            System.out.println("TOTAL PRODUCT SALES: " + product.GetTotalProductsSold());
+            System.out.printf("AVERAGE PRODUCT SALES: %.0f\n", product.GetAverageProductSold());
+            System.out.println("MOST POPULAR PRODUCT: " + product.GetMostPopularProduct());
         }
     }
 
-
-    // 4. MAIN METHOD (Application Entry Point)
-  
+    // 4. MAIN METHOD
     public static void main(String[] args) {
         Product productReport = new Product();
         PrintProduct printer = new PrintProduct();
-        
-        // 1. Get input from user
         productReport.obtainSales();
-        
-        // 2. Print the report using the PrintProduct class
         printer.printFullReport(productReport);
     }
 
-    
-    
-    
+  
+    public static class ProductTests {
+
+        @org.junit.jupiter.api.Test
+        public void GetTotalProductSales_WithValidData_ReturnsCorrectValue() {
+            // Arrange: Dummy data with a known total (10+10+10 + 20+20+20 + 30+30+30 = 180)
+            int[][] dummySales = {
+                {10, 10, 10},
+                {20, 20, 20},
+                {30, 30, 30}
+            };
+            Product product = new Product(dummySales);
+            
+            // Act
+            int actualTotal = product.GetTotalProductsSold();
+            
+            // Assert
+            org.junit.jupiter.api.Assertions.assertEquals(180, actualTotal, "The total sales calculation is incorrect.");
+        }
+
+        @org.junit.jupiter.api.Test
+        public void GetAverageSales_WithValidData_ReturnsCorrectValue() {
+            // Arrange: Dummy data with a known total of 180. Average = 180 / 9 = 20
+            int[][] dummySales = {
+                {10, 10, 10},
+                {20, 20, 20},
+                {30, 30, 30}
+            };
+            Product product = new Product(dummySales);
+            
+            // Act
+            double actualAverage = product.GetAverageProductSold();
+            
+            // Assert
+            org.junit.jupiter.api.Assertions.assertEquals(20.0, actualAverage, 0.01, "The average sales calculation is incorrect.");
+        }
+    }
 }
